@@ -19,4 +19,5 @@ openssl = "0.10.35"
 
 [dev-dependencies]
 reqwest = "0.11.4"
+simple_logger = "1.11.0"
 tokio-test = "0.4.2"

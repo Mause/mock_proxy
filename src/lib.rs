@@ -4,6 +4,10 @@
 //!
 //! The following shows how to setup reqwest to send requests to a [`Proxy`] instance
 //! ```rust
+//! use simple_logger::SimpleLogger;
+//! use log::warn;
+//! SimpleLogger::new().init().unwrap();
+//!
 //! let mut proxy = mock_proxy::Proxy::new();
 //! proxy.register(mock_proxy::Mock::new("GET", "/hello")
 //!     .with_body_from_json(json::object! { hello: "world" })
@@ -11,12 +15,16 @@
 //!     .create());
 //! proxy.start();
 //!
+//! warn!("Proxy started");
+//!
 //! let certificate = reqwest::Certificate::from_pem(&proxy.get_certificate()).unwrap();
 //! let client = reqwest::ClientBuilder::new()
 //!     .add_root_certificate(certificate)
 //!     .proxy(reqwest::Proxy::all(&proxy.url()).unwrap())
 //!     .build()
 //!     .unwrap();
+//!
+//! warn!("Client created");
 //!
 //! let response = tokio_test::block_on(async {
 //!     client
@@ -27,6 +35,8 @@
 //!         .text()
 //!         .await
 //!         .unwrap() });
+//!
+//! warn!("Request recieved");
 //!
 //! assert_eq!(response, "{}");
 //! ```
