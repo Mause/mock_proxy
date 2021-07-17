@@ -1,6 +1,8 @@
 //! This library was built to help test systems that use libraries which don't provide any
 //! testing utilities themselves. It works by overriding the proxy and root ca attributes
 //! and intercepting proxy requests, then returning mock responses defined by the user
+//!
+//! The following shows how to setup reqwest to send requests to a [`Proxy`] instance: [simple_test](https://github.com/Mause/mock_proxy/blob/main/src/test.rs)
 
 use crate::mock::Response;
 use log::{error, info};
@@ -14,6 +16,8 @@ use std::thread;
 
 mod identity;
 mod mock;
+#[cfg(test)]
+mod test;
 pub use crate::mock::Mock;
 
 const SERVER_ADDRESS_INTERNAL: &str = "127.0.0.1:1234";
@@ -89,6 +93,7 @@ impl Proxy {
 #[derive(Debug, Clone)]
 struct Request {
     error: Option<String>,
+    host: Option<String>,
     path: Option<String>,
     method: Option<String>,
     version: (u8, u8),
@@ -113,6 +118,7 @@ impl Request {
     fn from(stream: &mut dyn Read) -> Self {
         let mut request = Self {
             error: None,
+            host: None,
             path: None,
             method: None,
             version: (0, 0),
@@ -152,9 +158,13 @@ impl Request {
             .map(|result| match result {
                 httparse::Status::Complete(_head_length) => {
                     request.method = req.method.map(|s| s.to_string());
-                    request.path = req
-                        .path
-                        .map(|s| s.to_string().split(':').next().unwrap().to_owned());
+
+                    if req.method.as_ref().unwrap().eq(&"CONNECT") {
+                        request.host = req.path.unwrap().split(':').next().map(|f| f.to_string());
+                    } else {
+                        request.path = req.path.map(|f| f.to_string());
+                    }
+
                     if let Some(a @ 0..=1) = req.version {
                         request.version = (1, a);
                     }
@@ -252,9 +262,9 @@ fn open_tunnel<'a>(
 
     stream.write_all(&response)?;
     stream.flush()?;
-    info!("Response written");
+    info!("Tunnel open response written");
 
-    let identity = create_identity(&request.path.unwrap(), identity);
+    let identity = create_identity(&request.host.expect("No host??"), identity);
 
     info!("Wrapping with tls");
     let tstream = native_tls::TlsAcceptor::builder(identity)
@@ -273,6 +283,10 @@ fn handle_request(
     request: Request,
     mut stream: TcpStream,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    if !request.method.as_ref().unwrap().eq("CONNECT") {
+        panic!("Not a CONNECT request");
+    }
+
     let mut tstream = open_tunnel(identity, request, &mut stream)?;
 
     let req = Request::from(&mut tstream);
