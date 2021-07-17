@@ -277,6 +277,10 @@ fn handle_request(
     request: Request,
     mut stream: TcpStream,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    if !request.method.as_ref().unwrap().eq("CONNECT") {
+        panic!("Not a CONNECT request");
+    }
+
     let mut tstream = open_tunnel(identity, request, &mut stream)?;
 
     let req = Request::from(&mut tstream);
