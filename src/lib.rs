@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 //! This library was built to help test systems that use libraries which don't provide any
 //! testing utilities themselves. It works by overriding the proxy and root ca attributes
 //! and intercepting proxy requests, then returning mock responses defined by the user
@@ -47,6 +49,7 @@ impl Default for Proxy {
 struct Pair<'a>(&'a X509Ref, &'a PKeyRef<Private>);
 
 impl Proxy {
+    /// Builds a [`Default`] instance
     pub fn new() -> Self {
         Self::default()
     }

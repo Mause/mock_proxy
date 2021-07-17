@@ -20,11 +20,15 @@ impl Default for Response {
 /// The struct used to define mock responses
 #[derive(Debug, Clone)]
 pub struct Mock {
+    /// The path to match again
     pub path: String,
+    /// The HTTP method to match again
     pub method: String,
+    /// The response to return
     pub response: Response,
 }
 impl Mock {
+    /// Builds a [`Mock`] with the given `method` and `path` and a [`Default`] [`Response`]
     pub fn new(method: &str, path: &str) -> Self {
         Self {
             method: method.to_string(),
@@ -54,6 +58,7 @@ impl Mock {
         Ok(self)
     }
 
+    /// Freezes the given [`Mock`]
     pub fn create(&self) -> Self {
         self.clone()
     }
