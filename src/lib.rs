@@ -186,7 +186,7 @@ fn create_identity(cn: &str, pair: Pair) -> native_tls::Identity {
         .to_der()
         .unwrap();
 
-    native_tls::Identity::from_pkcs12(&encrypted, &password).expect("Unable to build identity")
+    native_tls::Identity::from_pkcs12(&encrypted, password).expect("Unable to build identity")
 }
 
 fn start_proxy(proxy: &mut Proxy) {
