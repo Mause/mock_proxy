@@ -2,44 +2,7 @@
 //! testing utilities themselves. It works by overriding the proxy and root ca attributes
 //! and intercepting proxy requests, then returning mock responses defined by the user
 //!
-//! The following shows how to setup reqwest to send requests to a [`Proxy`] instance
-//! ```rust
-//! use simple_logger::SimpleLogger;
-//! use log::warn;
-//! SimpleLogger::new().init().unwrap();
-//!
-//! let mut proxy = mock_proxy::Proxy::new();
-//! proxy.register(mock_proxy::Mock::new("GET", "/hello")
-//!     .with_body_from_json(json::object! { hello: "world" })
-//!     .unwrap()
-//!     .create());
-//! proxy.start();
-//!
-//! warn!("Proxy started");
-//!
-//! let certificate = reqwest::Certificate::from_pem(&proxy.get_certificate()).unwrap();
-//! let client = reqwest::ClientBuilder::new()
-//!     .add_root_certificate(certificate)
-//!     .proxy(reqwest::Proxy::all(&proxy.url()).unwrap())
-//!     .build()
-//!     .unwrap();
-//!
-//! warn!("Client created");
-//!
-//! let response = tokio_test::block_on(async {
-//!     client
-//!         .get("http://localhost/hello")
-//!         .send()
-//!         .await
-//!         .unwrap()
-//!         .text()
-//!         .await
-//!         .unwrap() });
-//!
-//! warn!("Request recieved");
-//!
-//! assert_eq!(response, "{}");
-//! ```
+//! The following shows how to setup reqwest to send requests to a [`Proxy`] instance: [simple_test](https://github.com/Mause/mock_proxy/blob/main/src/test.rs)
 
 use crate::mock::Response;
 use log::{error, info};
@@ -53,6 +16,8 @@ use std::thread;
 
 mod identity;
 mod mock;
+#[cfg(test)]
+mod test;
 pub use crate::mock::Mock;
 
 const SERVER_ADDRESS_INTERNAL: &str = "127.0.0.1:1234";
