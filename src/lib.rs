@@ -45,6 +45,7 @@ impl Default for Proxy {
 struct Pair<'a>(&'a X509Ref, &'a PKeyRef<Private>);
 
 impl Proxy {
+    /// Builds a [`Default`] instance
     pub fn new() -> Self {
         Self::default()
     }
