@@ -1,6 +1,35 @@
 //! This library was built to help test systems that use libraries which don't provide any
 //! testing utilities themselves. It works by overriding the proxy and root ca attributes
 //! and intercepting proxy requests, then returning mock responses defined by the user
+//!
+//! The following shows how to setup reqwest to send requests to a [`Proxy`] instance
+//! ```rust
+//! let mut proxy = mock_proxy::Proxy::new();
+//! proxy.register(mock_proxy::Mock::new("GET", "/hello")
+//!     .with_body_from_json(json::object! { hello: "world" })
+//!     .unwrap()
+//!     .create());
+//! proxy.start();
+//!
+//! let certificate = reqwest::Certificate::from_pem(&proxy.get_certificate()).unwrap();
+//! let client = reqwest::ClientBuilder::new()
+//!     .add_root_certificate(certificate)
+//!     .proxy(reqwest::Proxy::all(&proxy.url()).unwrap())
+//!     .build()
+//!     .unwrap();
+//!
+//! let response = tokio_test::block_on(async {
+//!     client
+//!         .get("http://localhost/hello")
+//!         .send()
+//!         .await
+//!         .unwrap()
+//!         .text()
+//!         .await
+//!         .unwrap() });
+//!
+//! assert_eq!(response, "{}");
+//! ```
 
 use crate::mock::Response;
 use log::{error, info};
