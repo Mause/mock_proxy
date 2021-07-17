@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 //! This library was built to help test systems that use libraries which don't provide any
 //! testing utilities themselves. It works by overriding the proxy and root ca attributes
 //! and intercepting proxy requests, then returning mock responses defined by the user
