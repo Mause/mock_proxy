@@ -1,5 +1,6 @@
 use crate::Request;
 use http::status::StatusCode;
+use std::convert::TryInto;
 
 #[derive(Debug, Clone)]
 pub struct Response {
@@ -71,6 +72,19 @@ impl Mock {
         self.response
             .headers
             .push((name.to_string(), value.to_string()));
+        self
+    }
+
+    /// Sets the response status
+    /// Default is 200 OK
+    pub fn with_status<T>(&mut self, status: T) -> &mut Self
+    where
+        T: TryInto<http::StatusCode>,
+    {
+        self.response.status = match status.try_into() {
+            Ok(status) => status,
+            Err(_) => panic!("Bad status"),
+        };
         self
     }
 

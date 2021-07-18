@@ -11,6 +11,7 @@ async fn test_simple() {
             .with_body_from_json(json::object! { hello: "world" })
             .unwrap()
             .with_header("content-type", "application/json")
+            .with_status(201)
             .create(),
     );
     proxy.start();
@@ -29,6 +30,7 @@ async fn test_simple() {
         .unwrap();
     warn!("Request recieved");
 
+    assert_eq!(response.status(), 201);
     assert_eq!(response.headers()["content-type"], "application/json");
 
     let text = response.text().await.unwrap();
