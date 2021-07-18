@@ -1,4 +1,4 @@
-#![warn(missing_docs)]
+#![deny(missing_docs)]
 
 //! This library was built to help test systems that use libraries which don't provide any
 //! testing utilities themselves. It works by overriding the proxy and root ca attributes
