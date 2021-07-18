@@ -1,4 +1,5 @@
 #![deny(missing_docs)]
+#![warn(clippy::nursery)]
 
 //! This library was built to help test systems that use libraries which don't provide any
 //! testing utilities themselves. It works by overriding the proxy and root ca attributes
@@ -56,6 +57,7 @@ impl Proxy {
 
     /// Register a given mock with the proxy
     ///
+    /// # Panics
     /// Will panic if proxy has already been started
     pub fn register(&mut self, mock: Mock) {
         if self.started {
@@ -66,28 +68,40 @@ impl Proxy {
 
     /// Start the proxy server
     ///
+    /// # Panics
     /// Will panic if proxy has already been started
     pub fn start(&mut self) {
         start_proxy(self);
     }
 
     /// Start the server
+    /// # Panics
+    /// Not supported yet
     pub fn stop(&mut self) {
         todo!();
     }
 
     /// Address and port of the local server.
     /// Can be used with `std::net::TcpStream`.
+    ///
+    /// # Panics
+    /// If server is not running
     pub fn address(&self) -> SocketAddr {
         self.listening_addr.expect("server should be listening")
     }
 
     /// A local `http://…` URL of the server.
+    ///
+    /// # Panics
+    /// If server is not running
     pub fn url(&self) -> String {
         format!("http://{}", self.address())
     }
 
     /// Returns the root CA certificate of the server
+    ///
+    /// # Panics
+    /// If PEM conversion fails
     pub fn get_certificate(&self) -> Vec<u8> {
         self.cert.to_pem().unwrap()
     }
