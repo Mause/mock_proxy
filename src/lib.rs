@@ -106,8 +106,9 @@ impl std::fmt::Display for Request {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         f.debug_struct("Request")
             .field("method", &self.method)
+            .field("host", &self.host)
             .field("path", &self.path)
-            .finish_non_exhaustive()
+            .finish()
     }
 }
 impl Request {
