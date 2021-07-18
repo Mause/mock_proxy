@@ -11,6 +11,7 @@ async fn test_simple() {
             .with_body_from_json(json::object! { hello: "world" })
             .unwrap()
             .with_header("content-type", "application/json")
+            .with_status(201)
             .create(),
     );
     proxy.start();
