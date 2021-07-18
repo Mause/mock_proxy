@@ -38,6 +38,8 @@ impl Mock {
     }
 
     /// Reads the response body from disk
+    /// # Errors
+    /// If we fail to read the file from disk
     pub fn with_body_from_file(
         &mut self,
         filename: &str,
