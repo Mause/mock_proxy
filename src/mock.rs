@@ -58,6 +58,20 @@ impl Mock {
         Ok(self)
     }
 
+    /// Adds a header to the response
+    ///
+    /// Does not remove existing headers with the same name
+    pub fn with_header<K, V>(&mut self, name: K, value: V) -> &mut Self
+    where
+        K: ToString,
+        V: ToString,
+    {
+        self.response
+            .headers
+            .push((name.to_string(), value.to_string()));
+        self
+    }
+
     /// Freezes the given [`Mock`]
     pub fn create(&self) -> Self {
         self.clone()

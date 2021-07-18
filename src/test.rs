@@ -10,6 +10,7 @@ async fn test_simple() {
         crate::Mock::new("GET", "/hello")
             .with_body_from_json(json::object! { hello: "world" })
             .unwrap()
+            .with_header("content-type", "application/json")
             .create(),
     );
     proxy.start();
@@ -25,11 +26,12 @@ async fn test_simple() {
         .get("https://discord.com/hello")
         .send()
         .await
-        .unwrap()
-        .text()
-        .await
         .unwrap();
     warn!("Request recieved");
 
-    assert_eq!(json::parse(&response).unwrap().index("hello"), "world");
+    assert_eq!(response.headers()["content-type"], "application/json");
+
+    let text = response.text().await.unwrap();
+
+    assert_eq!(json::parse(&text).unwrap().index("hello"), "world");
 }
