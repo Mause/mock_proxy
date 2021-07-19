@@ -4,9 +4,9 @@ use std::convert::TryInto;
 
 #[derive(Debug, Clone)]
 pub struct Response {
-    pub headers: Vec<(String, String)>,
-    pub body: Vec<u8>,
-    pub status: StatusCode,
+    pub(super) headers: Vec<(String, String)>,
+    pub(super) body: Vec<u8>,
+    pub(super) status: StatusCode,
 }
 impl Default for Response {
     fn default() -> Self {
@@ -22,11 +22,11 @@ impl Default for Response {
 #[derive(Debug, Clone)]
 pub struct Mock {
     /// The path to match again
-    pub path: String,
+    pub(super) path: String,
     /// The HTTP method to match again
-    pub method: String,
+    pub(super) method: String,
     /// The response to return
-    pub response: Response,
+    pub(super) response: Response,
 }
 impl Mock {
     /// Builds a [`Mock`] with the given `method` and `path` and a [`Default`] [`Response`]
