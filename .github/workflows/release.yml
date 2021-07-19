@@ -1,0 +1,34 @@
+on:
+  workflow_dispatch:
+    inputs:
+      releaseLevel:
+        required: false
+        description: 'Release level'
+        default: 'alpha'
+
+name: Release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: fregante/setup-git-user@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+      - uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-release
+          version: latest
+          use-tool-cache: true
+      - run: git checkout main
+      - run: cargo release --skip-push --token ${CRATES_IO_TOKEN} --no-confirm -- ${RELEASE_LEVEL}
+        env:
+          RELEASE_LEVEL: ${{ github.event.inputs.releaseLevel }}
+          CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: ${{ github.ref }}
+          tags: true
