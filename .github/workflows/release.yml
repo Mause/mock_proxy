@@ -1,4 +1,10 @@
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      releaseLevel:
+        required: false
+        description: 'Release level'
+        default: 'alpha'
 
 name: Release
 
@@ -15,7 +21,8 @@ jobs:
           crate: cargo-release
           version: latest
           use-tool-cache: true
-      - run: cargo login ${CRATES_IO_TOKEN}
+      - run: git checkout main
+      - run: cargo release ${RELEASE_LEVEL} --no-confirm --metadata --token ${CRATES_IO_TOKEN}
         env:
+          RELEASE_LEVEL: ${{ github.event.inputs.releaseLevel }}
           CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
-      - run: cargo release alpha
