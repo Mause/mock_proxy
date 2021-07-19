@@ -10,6 +10,11 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
+      - uses: actions-rs/install@v0.1
+        with:
+          crate: cargo-release
+          version: latest
+          use-tool-cache: true
       - run: cargo login ${CRATES_IO_TOKEN}
         env:
           CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
