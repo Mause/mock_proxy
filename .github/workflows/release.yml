@@ -22,7 +22,7 @@ jobs:
           version: latest
           use-tool-cache: true
       - run: git checkout main
-      - run: cargo release ${RELEASE_LEVEL} --metadata --token ${CRATES_IO_TOKEN} --no-confirm
+      - run: cargo release --metadata --token ${CRATES_IO_TOKEN} --no-confirm -- ${RELEASE_LEVEL}
         env:
           RELEASE_LEVEL: ${{ github.event.inputs.releaseLevel }}
           CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
