@@ -40,3 +40,10 @@ jobs:
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
+
+      - name: Create or Update Project Card
+        uses: peter-evans/create-or-update-project-card@v1
+        with:
+          project-name: Mock Proxy
+          column-name: In progress
+          issue-number: ${{ steps.cpr.outputs.pull-request-number }}
