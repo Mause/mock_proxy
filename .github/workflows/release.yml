@@ -41,6 +41,8 @@ jobs:
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v3
+        
+      - run: git push --tags
 
       - name: Create or Update Project Card
         uses: peter-evans/create-or-update-project-card@v1
@@ -48,3 +50,4 @@ jobs:
           project-name: Mock Proxy
           column-name: In progress
           issue-number: ${{ steps.cpr.outputs.pull-request-number }}
+
