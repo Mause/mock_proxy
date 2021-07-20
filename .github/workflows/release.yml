@@ -39,6 +39,7 @@ jobs:
       - run: cargo release --skip-push --token ${{ secrets.CRATES_IO_TOKEN }} --no-confirm -- ${{ github.event.inputs.releaseLevel }}
 
       - name: Create Pull Request
+        id: cpr
         uses: peter-evans/create-pull-request@v3
 
       - name: Create or Update Project Card
