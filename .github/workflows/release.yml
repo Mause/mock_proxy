@@ -11,16 +11,29 @@ name: Release
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      CARGO_RELEASE_VERSION: 0.16.2
+
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
-      - uses: actions-rs/install@v0.1
+
+      - name: Cache cargo-release
+        id: cache-cargo-bin-cargo-release
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-cargo-bin-cargo-release-${{ env.CARGO_RELEASE_VERSION }}
+          path: ~/.cargo/bin/cargo-release
+
+      - name: Install cargo-release
+        if: steps.cache-cargo-bin-cargo-release.outputs.cache-hit != 'true'
+        uses: actions-rs/install@v0.1
         with:
           crate: cargo-release
-          version: latest
-          use-tool-cache: true
+          version: ${{ env.CARGO_RELEASE_VERSION }}
+          
       - uses: technote-space/create-pr-action@v2
         with:
           EXECUTE_COMMANDS: |
