@@ -24,12 +24,9 @@ jobs:
           use-tool-cache: true
       - run: git checkout main
       - uses: technote-space/create-pr-action@v2
-        env:
-          RELEASE_LEVEL: ${{ github.event.inputs.releaseLevel }}
-          CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
         with:
           EXECUTE_COMMANDS: |
-           cargo release --skip-push --token ${CRATES_IO_TOKEN} --no-confirm -- ${RELEASE_LEVEL}
+           cargo release --skip-push --token ${{ secrets.CRATES_IO_TOKEN }} --no-confirm -- ${{ github.event.inputs.releaseLevel }}
           COMMIT_MESSAGE: 'chore: create release'
           COMMIT_NAME: 'GitHub Actions'
           COMMIT_EMAIL: 'example@example.com'
