@@ -37,7 +37,10 @@ jobs:
       - uses: technote-space/create-pr-action@v2
         with:
           EXECUTE_COMMANDS: |
+           git config user.name "GitHub Actions"
+           git config user.email "example@example.com"
            cargo release --skip-push --token ${{ secrets.CRATES_IO_TOKEN }} --no-confirm -- ${{ github.event.inputs.releaseLevel }}
+           git changed >> History.md
           COMMIT_MESSAGE: 'chore: create release'
           COMMIT_NAME: 'GitHub Actions'
           COMMIT_EMAIL: 'example@example.com'
