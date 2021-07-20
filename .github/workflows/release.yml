@@ -35,6 +35,7 @@ jobs:
           version: ${{ env.CARGO_RELEASE_VERSION }}
       - run: git config user.name "GitHub actions"
       - run: git config user.email "me+bot@mause.me"
+      - run: got checkout main
       - run: cargo release --skip-push --token ${{ secrets.CRATES_IO_TOKEN }} --no-confirm -- ${{ github.event.inputs.releaseLevel }}
 
       - name: Create Pull Request
