@@ -33,9 +33,12 @@ jobs:
         with:
           crate: cargo-release
           version: ${{ env.CARGO_RELEASE_VERSION }}
+      - run: cargo install jilu --git https://github.com/rustic-games/jilu
       - run: git config user.name "GitHub actions"
       - run: git config user.email "me+bot@mause.me"
       - run: git checkout main
+      - run: jilu > History.md
+      - run: git add History.md
       - run: cargo release --skip-push --token ${{ secrets.CRATES_IO_TOKEN }} --no-confirm -- ${{ github.event.inputs.releaseLevel }}
 
       - name: Create Pull Request
