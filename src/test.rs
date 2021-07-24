@@ -45,6 +45,40 @@ async fn test_simple() {
 }
 
 #[tokio::test]
+async fn test_domain_matching() {
+    let mut proxy = Proxy::default();
+
+    proxy.register(Mock::new("GET", "https://hello.com/path").create());
+
+    proxy.start();
+
+    let client = build_client(&proxy);
+
+    client.get("https://hello.com/path").send().await.unwrap();
+}
+
+#[tokio::test]
+async fn test_query_params() {
+    let mut proxy = Proxy::default();
+
+    let mock = Mock::new("GET", "/path?hello=world").create();
+    warn!("mock: {:?}", mock);
+    proxy.register(mock);
+
+    proxy.start();
+
+    let client = build_client(&proxy);
+
+    let res = client
+        .get("https://hello.com/path?hello=world")
+        .send()
+        .await
+        .unwrap();
+
+    assert_eq!(res.status(), 200);
+}
+
+#[tokio::test]
 async fn test_errors() {
     let mut proxy = Proxy::default();
 
