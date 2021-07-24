@@ -9,6 +9,8 @@ repos:
     rev: v1.0
     hooks:
     -   id: fmt
+        args:
+          - -Z offline
     # -   id: cargo-check
     # -   id: clippy
 - repo: https://github.com/pre-commit/pre-commit-hooks

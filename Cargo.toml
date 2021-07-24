@@ -4,7 +4,7 @@ license = "MIT"
 description = "A simple way to mock out API's if you can set a proxy"
 repository = "https://github.com/Mause/mock_proxy"
 authors = ["Elliana May"]
-version = "0.1.3-beta.7"
+version = "0.1.3-beta.8"
 edition = "2018"
 
 [package.metadata.release]
@@ -19,6 +19,7 @@ json = "0.12.4"
 log = "0.4.14"
 native-tls = "0.2.7"
 openssl = "0.10.35"
+url = "2.2.2"
 
 [dev-dependencies]
 reqwest = "0.11.4"

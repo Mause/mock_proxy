@@ -307,7 +307,8 @@ fn handle_request(
 
     let mut tstream = open_tunnel(identity, &request, &mut stream)?;
 
-    let req = Request::from(&mut tstream);
+    let mut req = Request::from(&mut tstream);
+    req.host = request.host;
 
     let mut matched = false;
     for m in mocks {
