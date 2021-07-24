@@ -1,6 +1,7 @@
 use crate::Request;
 use http::status::StatusCode;
 use std::convert::TryInto;
+use std::str::FromStr;
 
 #[derive(Debug, Clone)]
 pub struct Response {
@@ -27,13 +28,34 @@ pub struct Mock {
     pub(super) method: String,
     /// The response to return
     pub(super) response: Response,
+    pub(super) host: Option<String>,
 }
 impl Mock {
     /// Builds a [`Mock`] with the given `method` and `path` and a [`Default`] [`Response`]
     pub fn new(method: &str, path: &str) -> Self {
+        let fake_base = url::Url::from_str("https://fake_base.com").unwrap();
+        let url = url::Url::options()
+            .base_url(Some(&fake_base))
+            .parse(path)
+            .expect("failed to parse");
+
+        let mut qs = &url::form_urlencoded::Serializer::new(String::new())
+            .extend_pairs(url.query_pairs())
+            .finish();
+        let bit;
+        if !qs.is_empty() {
+            bit = "?".to_owned() + &qs.to_owned();
+            qs = &bit;
+        }
+
         Self {
             method: method.to_string(),
-            path: path.to_string(),
+            path: url.path().to_string() + qs,
+            host: if url.host() == fake_base.host() {
+                None
+            } else {
+                url.host().map(|f| f.to_string())
+            },
             response: Response::default(),
         }
     }
@@ -94,7 +116,18 @@ impl Mock {
     }
 
     pub(super) fn matches(&self, request: &Request) -> bool {
-        &self.path == request.path.as_ref().unwrap()
+        let host_match = match &self.host {
+            Some(host) => {
+                host == request
+                    .host
+                    .as_ref()
+                    .expect("Expected request to have a host")
+            }
+            None => true,
+        };
+
+        host_match
+            && &self.path == request.path.as_ref().unwrap()
             && &self.method == request.method.as_ref().unwrap()
     }
 }
