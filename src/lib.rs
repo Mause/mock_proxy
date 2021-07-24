@@ -12,7 +12,7 @@ use log::{error, info};
 use native_tls::TlsStream;
 use openssl::pkey::{PKey, PKeyRef, Private};
 use openssl::x509::X509Ref;
-use std::io::{Read, Write as IOWrite};
+use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::sync::mpsc;
 use std::thread;
@@ -254,7 +254,7 @@ fn start_proxy(proxy: &mut Proxy) {
                         .error()
                         .map_or("Could not parse the request.", |err| err.as_str());
                     error!("Could not parse request because: {}", message);
-                    respond_with_error(stream, request.version, message);
+                    respond_with_error(&mut stream as &mut dyn Write, &request, message).unwrap();
                 }
             } else {
                 error!("Could not read from stream");
@@ -267,7 +267,7 @@ fn start_proxy(proxy: &mut Proxy) {
 
 fn open_tunnel<'a>(
     identity: Pair,
-    request: Request,
+    request: &Request,
     stream: &'a mut TcpStream,
 ) -> Result<TlsStream<&'a mut TcpStream>, Box<dyn std::error::Error>> {
     let version = request.version;
@@ -282,7 +282,7 @@ fn open_tunnel<'a>(
     stream.flush()?;
     info!("Tunnel open response written");
 
-    let identity = create_identity(&request.host.expect("No host??"), identity);
+    let identity = create_identity(request.host.as_ref().expect("No host??"), identity);
 
     info!("Wrapping with tls");
     let tstream = native_tls::TlsAcceptor::builder(identity)
@@ -305,22 +305,28 @@ fn handle_request(
         panic!("Not a CONNECT request");
     }
 
-    let mut tstream = open_tunnel(identity, request, &mut stream)?;
+    let mut tstream = open_tunnel(identity, &request, &mut stream)?;
 
     let req = Request::from(&mut tstream);
 
+    let mut matched = false;
     for m in mocks {
         if m.matches(&req) {
             write_response(&mut tstream, &req, &m.response)?;
+            matched = true;
             break;
         }
+    }
+
+    if !matched {
+        respond_with_error(&mut tstream, &req, "No matching response")?;
     }
 
     Ok(())
 }
 
 fn write_response(
-    tstream: &mut TlsStream<&mut TcpStream>,
+    tstream: &mut dyn Write,
     request: &Request,
     response: &Response,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -338,6 +344,18 @@ fn write_response(
     Ok(())
 }
 
-fn respond_with_error(_stream: TcpStream, _version: (u8, u8), _message: &str) {
-    todo!();
+fn respond_with_error(
+    _stream: &mut dyn Write,
+    request: &Request,
+    message: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    write_response(
+        _stream,
+        request,
+        &Response {
+            headers: vec![],
+            status: http::StatusCode::INTERNAL_SERVER_ERROR,
+            body: message.as_bytes().to_vec(),
+        },
+    )
 }
