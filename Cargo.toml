@@ -10,6 +10,8 @@ edition = "2018"
 [package.metadata.release]
 disable-push = true
 pre-release-commit-message = "ci: Release {{version}}"
+post-release-commit-message = "ci: Released {{version}}, starting {{next_version}}"
+tag-prefix = ''
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
