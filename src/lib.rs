@@ -82,7 +82,7 @@ impl Proxy {
     }
 
     /// Address and port of the local server.
-    /// Can be used with `std::net::TcpStream`.
+    /// Can be used with [`std::net::TcpStream`].
     ///
     /// # Panics
     /// If server is not running
