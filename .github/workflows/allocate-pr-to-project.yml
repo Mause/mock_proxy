@@ -1,0 +1,13 @@
+on:
+  pull_request_target:
+    types: [opened]
+jobs:
+  createCard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or Update Project Card
+        uses: peter-evans/create-or-update-project-card@v1
+        with:
+          project-name: Mock Proxy
+          column-name: In progress
+          issue-number: ${{ github.event.number }}
