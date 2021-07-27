@@ -19,6 +19,33 @@ impl Default for Response {
     }
 }
 
+pub fn split_url(url: &str) -> (Option<String>, String) {
+    let fake_base = url::Url::from_str("https://fake_base.com").unwrap();
+    let url = url::Url::options()
+        .base_url(Some(&fake_base))
+        .parse(url)
+        .expect("failed to parse");
+
+    let mut qs = &url::form_urlencoded::Serializer::new(String::new())
+        .extend_pairs(url.query_pairs())
+        .finish();
+    let bit;
+    if !qs.is_empty() {
+        bit = "?".to_owned() + &qs.to_owned();
+        qs = &bit;
+    }
+
+    let host = if url.host() == fake_base.host() {
+        None
+    } else {
+        url.host().map(|f| f.to_string())
+    };
+
+    let path = url.path().to_string() + qs;
+
+    (host, path)
+}
+
 /// The struct used to define mock responses
 #[derive(Debug, Clone)]
 pub struct Mock {
@@ -33,29 +60,12 @@ pub struct Mock {
 impl Mock {
     /// Builds a [`Mock`] with the given `method` and `path` and a [`Default`] [`Response`]
     pub fn new(method: &str, path: &str) -> Self {
-        let fake_base = url::Url::from_str("https://fake_base.com").unwrap();
-        let url = url::Url::options()
-            .base_url(Some(&fake_base))
-            .parse(path)
-            .expect("failed to parse");
-
-        let mut qs = &url::form_urlencoded::Serializer::new(String::new())
-            .extend_pairs(url.query_pairs())
-            .finish();
-        let bit;
-        if !qs.is_empty() {
-            bit = "?".to_owned() + &qs.to_owned();
-            qs = &bit;
-        }
+        let (host, path) = split_url(path);
 
         Self {
             method: method.to_string(),
-            path: url.path().to_string() + qs,
-            host: if url.host() == fake_base.host() {
-                None
-            } else {
-                url.host().map(|f| f.to_string())
-            },
+            path,
+            host,
             response: Response::default(),
         }
     }
