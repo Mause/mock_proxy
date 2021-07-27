@@ -26,6 +26,11 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    
+    env:
+      SCCACHE_DIR: ~/.sccache
+      SCCACHE_CACHE_SIZE: 2G
+      # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
 
     steps:
     - uses: actions/checkout@v2
@@ -53,7 +58,7 @@ jobs:
       uses: actions/cache@v2
       continue-on-error: false
       with:
-        path: ${{ matrix.sccache-path }}
+        path:  ~/.sccache
         key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-sccache-
