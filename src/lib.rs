@@ -304,7 +304,11 @@ fn handle_request(
     if request.method.as_ref().unwrap().eq("CONNECT") {
         let mut tea = open_tunnel(identity, &request, &mut stream)?;
 
-        _handle_request(&mut tea, request, mocks)
+        let mut req = Request::from(&mut tea);
+        req.host = request.host;
+
+        // TODO: should probably loop reading of requests here for #23
+        _handle_request(&mut tea, req, mocks)
     } else {
         _handle_request(&mut stream, request, mocks)
     }
@@ -312,12 +316,9 @@ fn handle_request(
 
 fn _handle_request<S: Read + Write>(
     tstream: &mut S,
-    request: Request,
+    req: Request,
     mocks: &[Mock],
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut req = Request::from(tstream);
-    req.host = request.host;
-
     let mut matched = false;
     for m in mocks {
         if m.matches(&req) {
