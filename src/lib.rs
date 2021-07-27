@@ -1,5 +1,5 @@
 #![deny(missing_docs)]
-#![warn(clippy::nursery)]
+#![deny(clippy::nursery)]
 
 //! This library was built to help test systems that use libraries which don't provide any
 //! testing utilities themselves. It works by overriding the proxy and root ca attributes
@@ -126,10 +126,10 @@ impl std::fmt::Display for Request {
     }
 }
 impl Request {
-    fn is_ok(&self) -> bool {
+    const fn is_ok(&self) -> bool {
         self.error().is_none()
     }
-    fn error(&self) -> Option<&String> {
+    const fn error(&self) -> Option<&String> {
         self.error.as_ref()
     }
 
