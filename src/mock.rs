@@ -45,7 +45,7 @@ pub(crate) fn splitUrl(url: &str) -> (Option<String>, String) {
 
     (host, path)
 }
-   
+
 
 /// The struct used to define mock responses
 #[derive(Debug, Clone)]
