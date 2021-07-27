@@ -23,7 +23,7 @@ pub(crate) fn splitUrl(url: &str) -> (Option<String>, String) {
     let fake_base = url::Url::from_str("https://fake_base.com").unwrap();
     let url = url::Url::options()
         .base_url(Some(&fake_base))
-        .parse(path)
+        .parse(url)
         .expect("failed to parse");
 
     let mut qs = &url::form_urlencoded::Serializer::new(String::new())
