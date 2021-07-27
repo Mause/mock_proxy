@@ -180,7 +180,7 @@ impl Request {
                     if req.method.as_ref().unwrap().eq(&"CONNECT") {
                         request.host = req.path.unwrap().split(':').next().map(|f| f.to_string());
                     } else {
-                        let (host, path ) = splitUrl(req.path.map(|f| f.to_string()).expect("Missing path in request"));
+                        let (host, path ) = splitUrl(&req.path.map(|f| f.to_string()).expect("Missing path in request"));
                         request.host = host;
                         request.path = Some(path);
                     }
