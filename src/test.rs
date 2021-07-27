@@ -97,6 +97,7 @@ async fn test_errors() {
 #[tokio::test]
 async fn test_http() {
     let mut proxy = Proxy::default();
+    proxy.register(Mock::new("GET", "http://localhost/hello").create());
     proxy.start();
 
     let client = build_client(&proxy);
