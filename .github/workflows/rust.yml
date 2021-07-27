@@ -38,6 +38,7 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test -- -Z unstable-options --format json --report-time | cargo2junit > results.xml
+      timeout-minutes: 5
     - name: Publish Unit Test Results
       uses: EnricoMi/publish-unit-test-result-action@v1
       if: always()
