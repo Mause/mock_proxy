@@ -93,3 +93,14 @@ async fn test_errors() {
 
     assert_eq!(response, "No matching response\r\n");
 }
+
+#[tokio::test]
+async fn test_http() {
+    let mut proxy = Proxy::default();
+    proxy.start();
+
+    let client = build_client(&proxy);
+
+    let response = client.get("http://localhost/hello").send().await.unwrap();
+    assert_eq!(response.status(), 200);
+}

@@ -301,26 +301,34 @@ fn handle_request(
     request: Request,
     mut stream: TcpStream,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    if !request.method.as_ref().unwrap().eq("CONNECT") {
-        panic!("Not a CONNECT request");
+    if request.method.as_ref().unwrap().eq("CONNECT") {
+        let mut tea = open_tunnel(identity, &request, &mut stream)?;
+
+        _handle_request(&mut tea, request, mocks)
+    } else {
+        _handle_request(&mut stream, request, mocks)
     }
+}
 
-    let mut tstream = open_tunnel(identity, &request, &mut stream)?;
-
-    let mut req = Request::from(&mut tstream);
+fn _handle_request<S: Read + Write>(
+    tstream: &mut S,
+    request: Request,
+    mocks: &[Mock],
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut req = Request::from(tstream);
     req.host = request.host;
 
     let mut matched = false;
     for m in mocks {
         if m.matches(&req) {
-            write_response(&mut tstream, &req, &m.response)?;
+            write_response(tstream, &req, &m.response)?;
             matched = true;
             break;
         }
     }
 
     if !matched {
-        respond_with_error(&mut tstream, &req, "No matching response")?;
+        respond_with_error(tstream, &req, "No matching response")?;
     }
 
     Ok(())
