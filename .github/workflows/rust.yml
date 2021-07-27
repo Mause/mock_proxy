@@ -65,6 +65,8 @@ jobs:
           ${{ runner.os }}-sccache-
     - name: Start sccache server
       run: sccache --start-server
+      env:
+        RUST_LOG: debug
     - uses: actions-rs/install@v0.1
       with:
         crate: cargo2junit
