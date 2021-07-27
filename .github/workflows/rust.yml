@@ -30,6 +30,7 @@ jobs:
     env:
       SCCACHE_DIR: ~/.sccache
       SCCACHE_CACHE_SIZE: 2G
+      SCCACHE_LOG_LEVEL: debug
       # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
 
     steps:
