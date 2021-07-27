@@ -12,7 +12,7 @@ repos:
     # -   id: cargo-check
     # -   id: clippy
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v3.4.0
+  rev: v4.0.1
   hooks:
     - id: check-yaml
     - id: check-json
@@ -22,3 +22,6 @@ repos:
     - id: check-toml
     - id: end-of-file-fixer
     - id: trailing-whitespace
+
+ci:
+  skip: [fmt]
