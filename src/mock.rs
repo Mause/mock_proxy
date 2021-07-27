@@ -19,7 +19,7 @@ impl Default for Response {
     }
 }
 
-pub(crate) fn splitUrl(url: &str) -> (Option<String>, String) {
+pub(crate) fn split_url(url: &str) -> (Option<String>, String) {
     let fake_base = url::Url::from_str("https://fake_base.com").unwrap();
     let url = url::Url::options()
         .base_url(Some(&fake_base))
@@ -46,7 +46,6 @@ pub(crate) fn splitUrl(url: &str) -> (Option<String>, String) {
     (host, path)
 }
 
-
 /// The struct used to define mock responses
 #[derive(Debug, Clone)]
 pub struct Mock {
@@ -61,7 +60,7 @@ pub struct Mock {
 impl Mock {
     /// Builds a [`Mock`] with the given `method` and `path` and a [`Default`] [`Response`]
     pub fn new(method: &str, path: &str) -> Self {
-        let (host, path) = splitUrl(path);
+        let (host, path) = split_url(path);
 
         Self {
             method: method.to_string(),

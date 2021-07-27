@@ -7,7 +7,7 @@
 //!
 //! The following shows how to setup reqwest to send requests to a [`Proxy`] instance: [simple_test](https://github.com/Mause/mock_proxy/blob/main/src/test.rs)
 
-use crate::mock::{Response, splitUrl};
+use crate::mock::{split_url, Response};
 use log::{error, info};
 use native_tls::TlsStream;
 use openssl::pkey::{PKey, PKeyRef, Private};
@@ -180,7 +180,11 @@ impl Request {
                     if req.method.as_ref().unwrap().eq(&"CONNECT") {
                         request.host = req.path.unwrap().split(':').next().map(|f| f.to_string());
                     } else {
-                        let (host, path ) = splitUrl(&req.path.map(|f| f.to_string()).expect("Missing path in request"));
+                        let (host, path) = split_url(
+                            &req.path
+                                .map(|f| f.to_string())
+                                .expect("Missing path in request"),
+                        );
                         request.host = host;
                         request.path = Some(path);
                     }
