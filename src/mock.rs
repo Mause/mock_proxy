@@ -19,7 +19,7 @@ impl Default for Response {
     }
 }
 
-pub(crate) fn split_url(url: &str) -> (Option<String>, String) {
+pub fn split_url(url: &str) -> (Option<String>, String) {
     let fake_base = url::Url::from_str("https://fake_base.com").unwrap();
     let url = url::Url::options()
         .base_url(Some(&fake_base))
