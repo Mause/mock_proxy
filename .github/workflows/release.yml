@@ -20,7 +20,7 @@ jobs:
         with:
           toolchain: nightly
           
-      - run: sudo apt install sponge
+      - run: sudo apt install moreutils # sponge
 
       - name: Cache cargo-release
         id: cache-cargo-bin-cargo-release
