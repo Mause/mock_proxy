@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      SCCACHE_DIR: ~/.sccache
+      SCCACHE_DIR: /home/runner/.sccache
       SCCACHE_CACHE_SIZE: 2G
       SCCACHE_LOG_LEVEL: debug
       RUSTC_WRAPPER: sccache
@@ -63,7 +63,7 @@ jobs:
       uses: actions/cache@v2
       continue-on-error: false
       with:
-        path:  ~/.sccache
+        path:  /home/runner/.sccache
         key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-sccache-
