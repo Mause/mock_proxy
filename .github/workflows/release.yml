@@ -19,7 +19,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
-          
+
       - run: sudo apt install moreutils # sponge
 
       - name: Cache cargo-release
