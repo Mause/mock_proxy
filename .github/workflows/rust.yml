@@ -64,6 +64,9 @@ jobs:
         key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-sccache-
+    - run: |
+        mkdir -p /home/runner/.config/sccache
+        touch /home/runner/.config/sccache/config
     - run: sccache --start-server
       env:
         RUST_LOG: trace
