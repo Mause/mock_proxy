@@ -47,6 +47,7 @@ jobs:
         echo $URL
         curl -L $URL | tar xz
         mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
+        chmod +x $HOME/.local/bin/sccache
         echo "$HOME/.local/bin" >> $GITHUB_PATH
     - name: Cache cargo registry
       uses: actions/cache@v2
