@@ -1,5 +1,5 @@
 #![deny(missing_docs)]
-#![warn(clippy::nursery)]
+#![deny(clippy::nursery)]
 
 //! This library was built to help test systems that use libraries which don't provide any
 //! testing utilities themselves. It works by overriding the proxy and root ca attributes
@@ -7,7 +7,7 @@
 //!
 //! The following shows how to setup reqwest to send requests to a [`Proxy`] instance: [simple_test](https://github.com/Mause/mock_proxy/blob/main/src/test.rs)
 
-use crate::mock::Response;
+use crate::mock::{split_url, Response};
 use log::{error, info};
 use native_tls::TlsStream;
 use openssl::pkey::{PKey, PKeyRef, Private};
@@ -126,10 +126,10 @@ impl std::fmt::Display for Request {
     }
 }
 impl Request {
-    fn is_ok(&self) -> bool {
+    const fn is_ok(&self) -> bool {
         self.error().is_none()
     }
-    fn error(&self) -> Option<&String> {
+    const fn error(&self) -> Option<&String> {
         self.error.as_ref()
     }
 
@@ -180,7 +180,13 @@ impl Request {
                     if req.method.as_ref().unwrap().eq(&"CONNECT") {
                         request.host = req.path.unwrap().split(':').next().map(|f| f.to_string());
                     } else {
-                        request.path = req.path.map(|f| f.to_string());
+                        let (host, path) = split_url(
+                            &req.path
+                                .map(|f| f.to_string())
+                                .expect("Missing path in request"),
+                        );
+                        request.host = host;
+                        request.path = Some(path);
                     }
 
                     if let Some(a @ 0..=1) = req.version {
@@ -301,26 +307,35 @@ fn handle_request(
     request: Request,
     mut stream: TcpStream,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    if !request.method.as_ref().unwrap().eq("CONNECT") {
-        panic!("Not a CONNECT request");
+    if request.method.as_ref().unwrap().eq("CONNECT") {
+        let mut tea = open_tunnel(identity, &request, &mut stream)?;
+
+        let mut req = Request::from(&mut tea);
+        req.host = request.host;
+
+        // TODO: should probably loop reading of requests here for #23
+        _handle_request(&mut tea, req, mocks)
+    } else {
+        _handle_request(&mut stream, request, mocks)
     }
+}
 
-    let mut tstream = open_tunnel(identity, &request, &mut stream)?;
-
-    let mut req = Request::from(&mut tstream);
-    req.host = request.host;
-
+fn _handle_request<S: Read + Write>(
+    tstream: &mut S,
+    req: Request,
+    mocks: &[Mock],
+) -> Result<(), Box<dyn std::error::Error>> {
     let mut matched = false;
     for m in mocks {
         if m.matches(&req) {
-            write_response(&mut tstream, &req, &m.response)?;
+            write_response(tstream, &req, &m.response)?;
             matched = true;
             break;
         }
     }
 
     if !matched {
-        respond_with_error(&mut tstream, &req, "No matching response")?;
+        respond_with_error(tstream, &req, "No matching response")?;
     }
 
     Ok(())
