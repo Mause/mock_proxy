@@ -19,6 +19,8 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
+          
+      - run: apt install sponge
 
       - name: Cache cargo-release
         id: cache-cargo-bin-cargo-release
