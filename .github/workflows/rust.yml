@@ -69,6 +69,9 @@ jobs:
         crate: cargo2junit
         version: 0.1.7
         use-tool-cache: true
+    - run: sccache --start-server
+      env:
+        RUST_LOG: trace
     - name: Build
       run: cargo build --verbose
     - name: Run tests
