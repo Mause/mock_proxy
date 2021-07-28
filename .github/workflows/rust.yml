@@ -27,8 +27,52 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SCCACHE_DIR: /home/runner/.sccache
+      SCCACHE_CACHE_SIZE: 2G
+      SCCACHE_LOG_LEVEL: debug
+      RUSTC_WRAPPER: sccache
+      # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
+
     steps:
     - uses: actions/checkout@v2
+    - name: Install sccache (ubuntu-latest)
+      env:
+        LINK: https://github.com/mozilla/sccache/releases/download
+        SCCACHE_VERSION: v0.2.15
+      run: |
+        SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-unknown-linux-musl
+        mkdir -p $HOME/.local/bin
+        URL="$LINK/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz"
+        echo $URL
+        curl -L $URL | tar xz
+        mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
+        chmod +x $HOME/.local/bin/sccache
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+    - name: Cache cargo registry
+      uses: actions/cache@v2
+      continue-on-error: false
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+    - name: Save sccache
+      uses: actions/cache@v2
+      continue-on-error: false
+      with:
+        path:  /home/runner/.sccache
+        key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-sccache-
+    - run: |
+        mkdir -p /home/runner/.config/sccache
+        touch /home/runner/.config/sccache/config
+    - run: sccache --start-server
+      env:
+        RUST_LOG: trace
     - uses: actions-rs/install@v0.1
       with:
         crate: cargo2junit
@@ -46,3 +90,7 @@ jobs:
       if: always()
       with:
         files: results.xml
+    - name: Print sccache stats
+      run: sccache --show-stats
+    - name: Stop sccache server
+      run: sccache --stop-server || true
