@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - [unreleased](#unreleased)
 - [`0.1.3`](#013) – _2021.07.24_
+- [`0.1.3-alpha.3`](#013-alpha3) – _2021.07.19_
 - [`0.1.3-alpha.1`](#013-alpha1) – _2021.07.17_
 - [`0.1.2`](#012) – _2021.07.17_
 - [`0.1.2-rc.2`](#012-rc2) – _2021.07.17_
@@ -20,12 +21,17 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## _[Unreleased]_
 
-- ci: More cargo-release config ([`5fa3dcd`])
-- ci: Commence next development iteration ([`2436f40`])
+_nothing new to show for… yet!_
 
 ## [0.1.3]
 
 _2021.07.24_
+
+### Changes
+
+## [0.1.3-alpha.3] – _(cargo-release) mock_proxy version 0.1.3-alpha.3_
+
+_2021.07.19_
 
 ### Contributions
 
@@ -38,6 +44,12 @@ greatly appreciated by the community. 💖
 ### Changes
 
 #### ci
+
+- **Mend CHANGELOG.md config** ([`6d6092f`])
+
+- **More cargo-release config** ([`5fa3dcd`])
+
+- **Commence next development iteration** ([`2436f40`])
 
 - **Fix commit message format** ([`78f8899`])
 
@@ -77,6 +89,7 @@ _2021.07.16_
 
 [unreleased]: https://github.com/Mause/mock_proxy/compare/v0.1.3...HEAD
 [0.1.3]: https://github.com/Mause/mock_proxy/releases/tag/v0.1.3
+[0.1.3-alpha.3]: https://github.com/Mause/mock_proxy/releases/tag/v0.1.3-alpha.3
 [0.1.3-alpha.1]: https://github.com/Mause/mock_proxy/releases/tag/v0.1.3-alpha.1
 [0.1.2]: https://github.com/Mause/mock_proxy/releases/tag/v0.1.2
 [0.1.2-rc.2]: https://github.com/Mause/mock_proxy/releases/tag/v0.1.2-rc.2
@@ -84,6 +97,7 @@ _2021.07.16_
 
 <!-- [commits] -->
 
+[`6d6092f`]: https://github.com/Mause/mock_proxy/commit/6d6092ffab6fedb8eed3d0a7dfbf1218ca8f8883
 [`5fa3dcd`]: https://github.com/Mause/mock_proxy/commit/5fa3dcd90159aed4e17f9b404094d9348e98452a
 [`2436f40`]: https://github.com/Mause/mock_proxy/commit/2436f403469e15cb1eb9d107ac432ef0b919cbdb
 [`78f8899`]: https://github.com/Mause/mock_proxy/commit/78f8899ed2dcf9a83e3d342c2d97c1ce2f60c030
