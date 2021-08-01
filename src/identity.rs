@@ -153,7 +153,7 @@ impl IdentityInterface for OpensslInterface {
         ca_cert_pair: &Cert,
         password: &str,
     ) -> Result<Vec<u8>, std::boxed::Box<(dyn std::error::Error + 'static)>> {
-        let ca_cert = openssl::x509::X509::from_pem(&ca_cert_pair.cert).to_owned();
+        let ca_cert = openssl::x509::X509::from_pem(&ca_cert_pair.cert);
         let ca_pkey = PKey::private_key_from_pem(&ca_cert_pair.pkey)?;
 
         let (cert, key) = mk_ca_signed_cert(cn, ca_cert.as_ref().unwrap(), ca_pkey.as_ref())?;

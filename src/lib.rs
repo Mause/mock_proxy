@@ -204,8 +204,6 @@ impl Request {
 }
 
 fn create_identity(cn: &str, pair: &Cert) -> native_tls::Identity {
-    let pair = pair.into();
-
     let password = "password";
 
     let encrypted = OpensslInterface::new()
