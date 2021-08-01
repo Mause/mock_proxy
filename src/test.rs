@@ -11,7 +11,7 @@ fn build_client(proxy: &Proxy) -> reqwest::Client {
         .build()
         .unwrap();
     warn!("Client created");
-    return client;
+    client
 }
 
 #[tokio::test]
