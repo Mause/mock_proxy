@@ -1,4 +1,5 @@
 #![deny(missing_docs)]
+#![deny(clippy::redundant_clone)]
 #![deny(clippy::nursery)]
 
 //! This library was built to help test systems that use libraries which don't provide any
@@ -19,6 +20,7 @@ use std::thread;
 
 mod identity;
 mod identity_interface;
+mod identity_ring;
 mod mock;
 #[cfg(test)]
 mod test;
