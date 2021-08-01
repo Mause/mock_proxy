@@ -1,3 +1,4 @@
+use crate::identity_interface::{Cert, IdentityInterface};
 use openssl::asn1::Asn1Time;
 use openssl::bn::{BigNum, MsbOption};
 use openssl::error::ErrorStack;
@@ -132,4 +133,33 @@ pub fn mk_ca_signed_cert(
     let cert = cert_builder.build();
 
     Ok((cert, key_pair))
+}
+
+pub(super) struct OpensslInterface {}
+impl OpensslInterface {
+    pub(super) const fn new() -> Self {
+        Self {}
+    }
+}
+impl IdentityInterface for OpensslInterface {
+    fn mk_ca_cert(&self) -> Result<Cert, std::boxed::Box<(dyn std::error::Error + 'static)>> {
+        let (cert, key) = mk_ca_cert()?;
+
+        Ok(Cert::new(cert.to_pem()?, key.private_key_to_pem_pkcs8()?))
+    }
+    fn mk_ca_signed_cert(
+        &self,
+        cn: &str,
+        ca_cert_pair: &Cert,
+        password: &str,
+    ) -> Result<Vec<u8>, std::boxed::Box<(dyn std::error::Error + 'static)>> {
+        let ca_cert = openssl::x509::X509::from_pem(&ca_cert_pair.cert).to_owned();
+        let ca_pkey = PKey::private_key_from_pem(&ca_cert_pair.pkey)?;
+
+        let (cert, key) = mk_ca_signed_cert(cn, ca_cert.as_ref().unwrap(), ca_pkey.as_ref())?;
+
+        Ok(openssl::pkcs12::Pkcs12::builder()
+            .build(password, cn, &key, &cert)?
+            .to_der()?)
+    }
 }
