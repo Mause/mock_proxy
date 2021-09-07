@@ -11,7 +11,7 @@ fn build_client(proxy: &Proxy) -> reqwest::Client {
         .build()
         .unwrap();
     warn!("Client created");
-    return client;
+    client
 }
 
 #[tokio::test]
@@ -44,92 +44,92 @@ async fn test_simple() {
     assert_eq!(json::parse(&text).unwrap().index("hello"), "world");
 }
 
-// #[tokio::test]
-// async fn test_domain_matching() {
-//     let mut proxy = Proxy::default();
+#[tokio::test]
+async fn test_domain_matching() {
+    let mut proxy = Proxy::default();
 
-//     proxy.register(Mock::new("GET", "https://hello.com/path").create());
+    proxy.register(Mock::new("GET", "https://hello.com/path").create());
 
-//     proxy.start();
+    proxy.start();
 
-//     let client = build_client(&proxy);
+    let client = build_client(&proxy);
 
-//     client.get("https://hello.com/path").send().await.unwrap();
-// }
+    client.get("https://hello.com/path").send().await.unwrap();
+}
 
-// #[tokio::test]
-// async fn test_query_params() {
-//     let mut proxy = Proxy::default();
+#[tokio::test]
+async fn test_query_params() {
+    let mut proxy = Proxy::default();
 
-//     let mock = Mock::new("GET", "/path?hello=world").create();
-//     warn!("mock: {:?}", mock);
-//     proxy.register(mock);
+    let mock = Mock::new("GET", "/path?hello=world").create();
+    warn!("mock: {:?}", mock);
+    proxy.register(mock);
 
-//     proxy.start();
+    proxy.start();
 
-//     let client = build_client(&proxy);
+    let client = build_client(&proxy);
 
-//     let res = client
-//         .get("https://hello.com/path?hello=world")
-//         .send()
-//         .await
-//         .unwrap();
+    let res = client
+        .get("https://hello.com/path?hello=world")
+        .send()
+        .await
+        .unwrap();
 
-//     assert_eq!(res.status(), 200);
-// }
+    assert_eq!(res.status(), 200);
+}
 
-// #[tokio::test]
-// async fn test_errors() {
-//     let mut proxy = Proxy::default();
+#[tokio::test]
+async fn test_errors() {
+    let mut proxy = Proxy::default();
 
-//     proxy.start();
+    proxy.start();
 
-//     let client = build_client(&proxy);
+    let client = build_client(&proxy);
 
-//     let response = client.get("https://hello.com/path").send().await.unwrap();
-//     assert_eq!(response.status(), 500);
+    let response = client.get("https://hello.com/path").send().await.unwrap();
+    assert_eq!(response.status(), 500);
 
-//     let response = response.text().await.unwrap();
+    let response = response.text().await.unwrap();
 
-//     assert_eq!(response, "No matching response\r\n");
-// }
+    assert_eq!(response, "No matching response\r\n");
+}
 
-// #[tokio::test]
-// async fn test_http() {
-//     let mut proxy = Proxy::default();
-//     proxy.register(Mock::new("GET", "http://localhost/hello").create());
-//     proxy.start();
+#[tokio::test]
+async fn test_http() {
+    let mut proxy = Proxy::default();
+    proxy.register(Mock::new("GET", "http://localhost/hello").create());
+    proxy.start();
 
-//     let client = build_client(&proxy);
+    let client = build_client(&proxy);
 
-//     let response = client.get("http://localhost/hello").send().await.unwrap();
-//     assert_eq!(response.status(), 200);
-// }
+    let response = client.get("http://localhost/hello").send().await.unwrap();
+    assert_eq!(response.status(), 200);
+}
 
-// #[tokio::test]
-// async fn test_multiple_http() {
-//     let mut proxy = Proxy::default();
-//     proxy.register(Mock::new("GET", "http://localhost/hello").create());
-//     proxy.start();
+#[tokio::test]
+async fn test_multiple_http() {
+    let mut proxy = Proxy::default();
+    proxy.register(Mock::new("GET", "http://localhost/hello").create());
+    proxy.start();
 
-//     let client = build_client(&proxy);
+    let client = build_client(&proxy);
 
-//     for _ in 0..5 {
-//         let response = client.get("http://localhost/hello").send().await.unwrap();
-//         assert_eq!(response.status(), 200);
-//     }
-// }
+    for _ in 0..5 {
+        let response = client.get("http://localhost/hello").send().await.unwrap();
+        assert_eq!(response.status(), 200);
+    }
+}
 
-// #[tokio::test]
-// async fn test_multiple_https() {
-//     let mut proxy = Proxy::default();
-//     proxy.register(Mock::new("GET", "https://localhost/hello").create());
-//     proxy.start();
+#[tokio::test]
+async fn test_multiple_https() {
+    let mut proxy = Proxy::default();
+    proxy.register(Mock::new("GET", "https://localhost/hello").create());
+    proxy.start();
 
-//     let client = build_client(&proxy);
+    let client = build_client(&proxy);
 
-//     for _ in 0..5 {
-//         let response = client.get("https://localhost/hello").send().await.unwrap();
-//         assert_eq!(response.status(), 200);
-//     }
-// }
+    for _ in 0..5 {
+        let response = client.get("https://localhost/hello").send().await.unwrap();
+        assert_eq!(response.status(), 200);
+    }
+}

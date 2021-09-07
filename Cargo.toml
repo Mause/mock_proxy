@@ -18,15 +18,21 @@ tag-prefix = ''
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = "0.4.19"
 http = "0.2.4"
 httparse = "1.4.1"
 json = "0.12.4"
 log = "0.4.14"
 native-tls = "0.2.7"
 openssl = "0.10.35"
+p12 = "0.2.0"
+rand = "0.8.4"
+rcgen = { version = "0.8.11", features = ["pem", "x509-parser"] }
+ring = { version = "0.16.20", features = ["std"] }
+rustls = "0.19.1"
 url = "2.2.2"
 
 [dev-dependencies]
-reqwest = "0.11.4"
+reqwest = {version = "0.11.4", features = ["rustls-tls"]}
 simple_logger = "1.11.0"
 tokio = { version = "1.8.1", features = ["macros", "rt"] }

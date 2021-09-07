@@ -1,4 +1,5 @@
 #![deny(missing_docs)]
+#![deny(clippy::redundant_clone)]
 #![deny(clippy::nursery)]
 
 //! This library was built to help test systems that use libraries which don't provide any
@@ -7,17 +8,19 @@
 //!
 //! The following shows how to setup reqwest to send requests to a [`Proxy`] instance: [simple_test](https://github.com/Mause/mock_proxy/blob/main/src/test.rs)
 
+use crate::identity::OpensslInterface;
+use crate::identity_interface::{Cert, IdentityInterface};
 use crate::mock::{split_url, Response};
 use log::{error, info};
 use native_tls::TlsStream;
-use openssl::pkey::{PKey, PKeyRef, Private};
-use openssl::x509::X509Ref;
 use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::sync::mpsc;
 use std::thread;
 
 mod identity;
+mod identity_interface;
+mod identity_ring;
 mod mock;
 #[cfg(test)]
 mod test;
@@ -30,24 +33,22 @@ pub struct Proxy {
     mocks: Vec<Mock>,
     listening_addr: Option<SocketAddr>,
     started: bool,
-    identity: PKey<Private>,
-    cert: openssl::x509::X509,
+    cert: Cert,
 }
 
 impl Default for Proxy {
     fn default() -> Self {
-        let (cert, identity) = crate::identity::mk_ca_cert().unwrap();
+        let cert = OpensslInterface::new()
+            .mk_ca_cert()
+            .expect("Failed to generate CA certificate");
         Self {
             mocks: Vec::new(),
             listening_addr: None,
             started: false,
-            identity,
             cert,
         }
     }
 }
-
-struct Pair<'a>(&'a X509Ref, &'a PKeyRef<Private>);
 
 impl Proxy {
     /// Builds a [`Default`] instance
@@ -103,7 +104,7 @@ impl Proxy {
     /// # Panics
     /// If PEM conversion fails
     pub fn get_certificate(&self) -> Vec<u8> {
-        self.cert.to_pem().unwrap()
+        self.cert.cert()
     }
 }
 
@@ -165,6 +166,10 @@ impl Request {
             }
         }
 
+        if request.error().is_some() {
+            return request;
+        }
+
         let mut headers = [httparse::EMPTY_HEADER; 16];
         let mut req = httparse::Request::new(&mut headers);
 
@@ -200,14 +205,11 @@ impl Request {
     }
 }
 
-fn create_identity(cn: &str, pair: Pair) -> native_tls::Identity {
-    let (cert, key) = crate::identity::mk_ca_signed_cert(cn, pair.0, pair.1).unwrap();
-
+fn create_identity(cn: &str, pair: &Cert) -> native_tls::Identity {
     let password = "password";
-    let encrypted = openssl::pkcs12::Pkcs12::builder()
-        .build(password, cn, &key, &cert)
-        .unwrap()
-        .to_der()
+
+    let encrypted = OpensslInterface::new()
+        .mk_ca_signed_cert(cn, pair, password)
         .unwrap();
 
     native_tls::Identity::from_pkcs12(&encrypted, password).expect("Unable to build identity")
@@ -220,7 +222,6 @@ fn start_proxy(proxy: &mut Proxy) {
     proxy.started = true;
     let mocks = proxy.mocks.clone();
     let cert = proxy.cert.clone();
-    let pkey = proxy.identity.clone();
 
     // if state.listening_addr.is_some() {
     //     return;
@@ -253,8 +254,7 @@ fn start_proxy(proxy: &mut Proxy) {
                 let request = Request::from(&mut stream);
                 info!("Request received: {}", request);
                 if request.is_ok() {
-                    handle_request(Pair(cert.as_ref(), pkey.as_ref()), &mocks, request, stream)
-                        .unwrap();
+                    handle_request(cert.to_owned(), &mocks, request, stream).unwrap();
                 } else {
                     let message = request
                         .error()
@@ -272,7 +272,7 @@ fn start_proxy(proxy: &mut Proxy) {
 }
 
 fn open_tunnel<'a>(
-    identity: Pair,
+    identity: Cert,
     request: &Request,
     stream: &'a mut TcpStream,
 ) -> Result<TlsStream<&'a mut TcpStream>, Box<dyn std::error::Error>> {
@@ -288,7 +288,7 @@ fn open_tunnel<'a>(
     stream.flush()?;
     info!("Tunnel open response written");
 
-    let identity = create_identity(request.host.as_ref().expect("No host??"), identity);
+    let identity = create_identity(request.host.as_ref().expect("No host??"), &identity);
 
     info!("Wrapping with tls");
     let tstream = native_tls::TlsAcceptor::builder(identity)
@@ -302,7 +302,7 @@ fn open_tunnel<'a>(
 }
 
 fn handle_request(
-    identity: Pair,
+    identity: Cert,
     mocks: &[Mock],
     request: Request,
     mut stream: TcpStream,
@@ -312,6 +312,9 @@ fn handle_request(
 
         let mut req = Request::from(&mut tea);
         req.host = request.host;
+        if !req.is_ok() {
+            return Err(req.error().unwrap().as_str().into());
+        };
 
         // TODO: should probably loop reading of requests here for #23
         _handle_request(&mut tea, req, mocks)
