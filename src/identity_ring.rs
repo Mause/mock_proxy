@@ -62,7 +62,12 @@ fn to_string(thing: &[u8]) -> String {
     unsafe { String::from_utf8_unchecked(thing.to_owned()) }
 }
 
-struct RingInterface {}
+pub(super) struct RingInterface {}
+impl RingInterface {
+    pub(super) const fn new() -> Self {
+        Self {}
+    }
+}
 impl IdentityInterface for RingInterface {
     fn mk_ca_cert(
         &self,
