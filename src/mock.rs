@@ -3,20 +3,11 @@ use http::status::StatusCode;
 use std::convert::TryInto;
 use std::str::FromStr;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Response {
     pub(super) headers: Vec<(String, String)>,
     pub(super) body: Vec<u8>,
     pub(super) status: StatusCode,
-}
-impl Default for Response {
-    fn default() -> Self {
-        Self {
-            body: Vec::new(),
-            headers: Vec::new(),
-            status: http::StatusCode::default(),
-        }
-    }
 }
 
 pub fn split_url(url: &str) -> (Option<String>, String) {
