@@ -29,7 +29,7 @@ p12 = "0.2.0"
 rand = "0.8.4"
 rcgen = { version = "0.8.11", features = ["pem", "x509-parser"] }
 ring = { version = "0.16.20", features = ["std"] }
-rustls = "0.19.1"
+rustls = "0.20.0"
 url = "2.2.2"
 
 [dev-dependencies]
