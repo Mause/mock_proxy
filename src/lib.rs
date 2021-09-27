@@ -10,6 +10,7 @@
 
 use crate::identity::OpensslInterface;
 use crate::identity_interface::{Cert, IdentityInterface};
+use crate::identity_ring::RingInterface;
 use crate::mock::{split_url, Response};
 use log::{error, info};
 use native_tls::TlsStream;
@@ -38,7 +39,7 @@ pub struct Proxy {
 
 impl Default for Proxy {
     fn default() -> Self {
-        let cert = OpensslInterface::new()
+        let cert = RingInterface::new()
             .mk_ca_cert()
             .expect("Failed to generate CA certificate");
         Self {
